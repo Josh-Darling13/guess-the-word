@@ -19,7 +19,15 @@ wordInProgress.innerText = dotsOnParade;
 // return?
 }
 
-dotChain(word);         // Hint: You’ll need to use an array and then join it back to a string using the .join("") method.
+
+/**
+ *  Since wwriting the array isn't 
+ * part of this YET... 
+ * I'll add that in the next phase of code.
+ * 
+ */
+
+dotChain(word);         // Hint: You’ll need to use an array and then join it back to a string using the .join("") method. 
 
 
 
