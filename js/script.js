@@ -8,8 +8,21 @@ const messageParagraph = document.querySelector(".message");                // T
 const playAgain = document.querySelector(".play-again");                    // The hidden button that will appear prompting the player to play again.// 
 const form = document.querySelector('form');
 
+let word = "magnolia"
 const iAmdot = "●";
 let dotsOnParade = [];
+
+let remainingGuesses = word.length;
+
+/* 
+let word = "magnolia";
+
+With the rest of our global variables at the top of the file. Then inside your 'getWord' function, 
+remove the 'let' in front of 'word = wordArray[randomIndex].grim();' - because you are reassigning 
+the variable (and not redeclaring it). With that in place, your code should be able to reach out to the global space and access the 'word' global variable, no matter where it is used.
+
+*/
+
 
 const getWord = async function () {
  
@@ -17,8 +30,8 @@ const getWord = async function () {
     let words = await response.text();
     let wordArray = words.split("\n");
     let randomIndex = Math.floor(Math.random() * wordArray.length);
-    let word = wordArray[randomIndex].trim();
- //   placeholder(word);
+    word = wordArray[randomIndex].trim();
+    console.log(`word ${word}`);
     dotChain(iAmdot, word);
   };
 
@@ -27,33 +40,25 @@ getWord();
 const dotChain = function(iAmdot, word){
     let dotNum = word.length;
     let n = 0;
-    while(n < dotNum-1){
+    while(n < dotNum){
         dotsOnParade[n] = iAmdot;
         n += 1
-
-
     }
 
     console.log(dotsOnParade);
 
      wordInProgress.innerText = dotsOnParade.join("");
-     innerSpan.innerHTML = `${dotNum-1} guesses`; 
+     innerSpan.innerHTML = `${dotNum} guesses`; 
  };
 
-const reWord = function(word){
-    console.log(`word ${word}`);
-    let wordAsString = String(word);
-    return wordAsString;
-};
 
-
-// let remainingGuesses = word.length;
 let guessedLetters = [];
 let correctGuesses = [];
 let finalAnsewer = [];
 let letterLocation = [];
 let AnsewerArray = [];
 let uniqueArray = [];
+
 
 // innerSpan.innerHTML = `${remainingGuesses} guesses`;  
 
@@ -68,7 +73,7 @@ playAgain.addEventListener('click',function(){
 guessButton.addEventListener('click', (e) =>{
     e.preventDefault();
                            
-    let validGusse = letterValidation();
+    let validGusse = letterValidation(word);
   
     if (typeof validGusse === 'string' || validGusse instanceof String) {
         let valGuess = makeGuess(validGusse, word);
@@ -78,6 +83,17 @@ guessButton.addEventListener('click', (e) =>{
         alreadyGussesedLetter.innerText = guessedArray.join("");
         let winnerTest = dotToletters(corectLet, word, iAmdot);
         chickenDiner(winnerTest, word);
+        let weGotOne = chickenDiner(winnerTest, word);
+        if (weGotOne === 1){
+            playAgain.classList.remove('hide');
+            playAgain.classList.add("play-again");
+            alreadyGussesedLetter.innerText = "Test Your Might! Again?";  
+            playAgain.addEventListener('click', function(){
+                location.reload();
+                return false;
+            });
+        }
+
         let guessesRemain = dimishedGuesses(word, guessedArray);
         console.log(`guessesRemain ${guessesRemain}`);
 
@@ -100,8 +116,8 @@ guessButton.addEventListener('click', (e) =>{
 }
 );
 
-const letterValidation = function(){                                                // this function checks that the user input was a valid entery.
-    console.log(`word inside of letterValidation ${word}`);
+const letterValidation = function(word){                                                // this function checks that the user input was a valid entery.
+
     const acceptedLetter = /[a-zA-Z]+$/;                                            // Regex to check stuff aginst. 
     const inputLetter = form.elements;                                              // gets the information from the form
     let letterIn = inputLetter['letter'].value;                                     // gets the information from the form
@@ -126,7 +142,7 @@ const letterValidation = function(){                                            
 };
 
 const makeGuess = function(ltrs, word){                                      //funtion to test if the letter is part of the word
-    console.log(`word inside of makeGuess ${word}`);
+
     let ltr = String(ltrs).toUpperCase();
     let wordAsCaps = String(word).toUpperCase();
     AnsewerArray = wordAsCaps.split("");                                    // ansewer word as an array
@@ -151,7 +167,7 @@ const makeGuess = function(ltrs, word){                                      //f
 
 
 const dotToletters = function(validGusse, word, iAmdot) {
-    console.log(`word inside of dotToletters ${word}`);
+
     const wordAsCaps = word.toUpperCase();
     const indexes = [];   
     letterLocation = wordAsCaps.split('');
@@ -181,7 +197,7 @@ const dotToletters = function(validGusse, word, iAmdot) {
 }
    
 const chickenDiner = function(wintest, word) {
-    console.log(`word inside of chickenDiner ${word}`);
+
     const wordsUpCa = word.toUpperCase();
     let winnerWinner = 0;
     if (wintest === wordsUpCa){
@@ -196,11 +212,12 @@ const getOccurrence = function(array, value) {
 }
 
 const dimishedGuesses = function(word, wrongAnsewers){
-    console.log(`word inside of dimishedGuesses ${word}`);
+
     let guessesLeft = (word.length - wrongAnsewers.length);
-    console.log(`guessesLeft ${guessesLeft}`);
-    console.log(`word  ${word}, wrongAnsewers  ${wrongAnsewers}`);
-    return guessesLeft
+
+    console.log(`word  ${word}, wrongAnsewers  ${wrongAnsewers}, guessesLeft ${guessesLeft} `);
+
+    return guessesLeft 
 }
 
 const getUnique = function(array){                                          // it wasn't in the rules BUT I felt it wouldn't be
