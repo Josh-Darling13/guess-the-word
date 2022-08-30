@@ -1,143 +1,214 @@
 const alreadyGussesedLetter = document.querySelector(".guessed-letters");          //The unordered list where the player’s guessed letters will appear.
 const guessButton = document.querySelector(".guess");                       //The button with the text “Guess!” in it.
-// const inputLetter = document.querySelector(".letter");                     //The text input where the player will guess a letter.
+const inputLetter = document.querySelector(".letter");                     //The text input where the player will guess a letter.
 const wordInProgress = document.querySelector(".word-in-progress");         //The empty paragraph where the word in progress will appear.
-const remainingGuesses = document.querySelector(".remaining");              // The paragraph where the remaining guesses will display.
+const standingGuesses = document.querySelector(".remaining");              // The paragraph where the remaining guesses will display.
 const innerSpan = document.querySelector(".remaining span");                           // The span inside the paragraph where the remaining guesses will display.
 const messageParagraph = document.querySelector(".message");                // The empty paragraph where messages will appear when the player guesses a letter.
 const playAgain = document.querySelector(".play-again");                    // The hidden button that will appear prompting the player to play again.// 
 const form = document.querySelector('form');
 
 const iAmdot = "●";
-const word = "magnolia";
-const dotNum = word.length;
-
 let dotsOnParade = [];
-let guessedLetters = [];
-let correctGuesses = [];
-let finalAnsewer = [];
-// let indexes = []; 
-let letterLocation = [];
-let AnsewerArray = [];
 
-const dotChain = function(iAmdot, dotNum){
+const getWord = async function () {
+ 
+    let response = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+    let words = await response.text();
+    let wordArray = words.split("\n");
+    let randomIndex = Math.floor(Math.random() * wordArray.length);
+    let word = wordArray[randomIndex].trim();
+ //   placeholder(word);
+    dotChain(iAmdot, word);
+  };
 
+getWord();
+
+const dotChain = function(iAmdot, word){
+    let dotNum = word.length;
     let n = 0;
     while(n < dotNum-1){
         dotsOnParade[n] = iAmdot;
         n += 1
+
+
     }
-    console.log(`dotsOnParade ${ dotsOnParade }`);   
-    wordInProgress.innerText = dotsOnParade.join("");
-    
+
+    console.log(dotsOnParade);
+
+     wordInProgress.innerText = dotsOnParade.join("");
+     innerSpan.innerHTML = `${dotNum-1} guesses`; 
  };
 
-dotChain(iAmdot, dotNum);         // Hint: You’ll need to use an array and then join it back to a string using the .join("") method. 
-
-guessButton.addEventListener('click', (e) =>{
-    e.preventDefault();
-    const validGusse = letterValidation();                              // A correct letter fitlered through conditions
-    alreadyGussesedLetter.innerText = makeGuess(validGusse, word).join(" ");
-    dotToletters(validGusse, word, iAmdot);
-    let winnerTest = dotToletters(validGusse, word, iAmdot);
-    console.log(winnerTest);
-    chickenDiner(winnerTest, word);
-
-}
-);
-
-
-const letterValidation = function(){
-    // this function checks that the user input was a valid entery.
-
-    const acceptedLetter = /[a-zA-Z]/;                                              // Regex to check stuff aginst. 
-    const inputLetter = form.elements;                                              // gets the information from the form
-    let letterIn = inputLetter['letter'].value;                                     // gets the information from the form
-    const isLetters = letterIn.match(acceptedLetter);                               // tests the letter matches Regex value 
-
-    if (letterIn === null || letterIn === ""){                                        // tests to not a null/empty entry
-        messageParagraph.innerText = "Ops! You forgot to input a letter.";
-        letterIn = null;
-    } else if (letterIn.length > 1){                                              // tests to no multiple characters 
-        messageParagraph.innerText = "One at a time please.";
-    }  else if (!isLetters){                                                      // tests if it's NOT a letter
-        messageParagraph.innerText = "Ops! that's not a letter.";
-    } else {                                                                      // returns value if input is a letter. 
-        messageParagraph.innerText = "THat's a letter!";                          // for sake of later comaprison letter
-        return letterIn.toUpperCase();                                            // is returned a capital
-    }
+const reWord = function(word){
+    console.log(`word ${word}`);
+    let wordAsString = String(word);
+    return wordAsString;
 };
 
 
+// let remainingGuesses = word.length;
+let guessedLetters = [];
+let correctGuesses = [];
+let finalAnsewer = [];
+let letterLocation = [];
+let AnsewerArray = [];
+let uniqueArray = [];
 
-const makeGuess = function(ltr, word){                            //funtion to test if the letter has been used or is in the solution word.
-   
-    let wordAsString = String(word);
-    let wordAsCaps = wordAsString.toUpperCase();
-    AnsewerArray = wordAsCaps.split("");              // ansewer word as an array
- //   guessedLetters.push(ltr);
+// innerSpan.innerHTML = `${remainingGuesses} guesses`;  
+
+playAgain.addEventListener('click',function(){
+    playAgain.classList.add("hide");
+    messageParagraph.innerText = "";  
+    innerSpan.innerHTML = `${remainingGuesses} guesses`;  
+    alreadyGussesedLetter.innerText = '';
+}
+);
+
+guessButton.addEventListener('click', (e) =>{
+    e.preventDefault();
+                           
+    let validGusse = letterValidation();
+  
+    if (typeof validGusse === 'string' || validGusse instanceof String) {
+        let valGuess = makeGuess(validGusse, word);
+        let guessedArray = valGuess[0];
+        let corectLet = valGuess[1]
+        if (corectLet !== 0) {wordInProgress.innerText = dotToletters(corectLet, word, iAmdot);}
+        alreadyGussesedLetter.innerText = guessedArray.join("");
+        let winnerTest = dotToletters(corectLet, word, iAmdot);
+        chickenDiner(winnerTest, word);
+        let guessesRemain = dimishedGuesses(word, guessedArray);
+        console.log(`guessesRemain ${guessesRemain}`);
+
+        if (guessesRemain > -1){
+        innerSpan.innerHTML = `${guessesRemain} guesses`;  
+        }
+
+        if (guessesRemain > 0){
+            innerSpan.innerHTML = `${guessesRemain} guesses`; 
+        } else if (guessesRemain === 0){
+            console.log('getting here');
+            
+            playAgain.classList.remove('hide');
+            playAgain.classList.add("play-again");
+            messageParagraph.innerText = "Sorry, try again?";   
+            dotChain(iAmdot, dotNum);      
+        }
+    }
+    inputLetter.value = '';                                                                        // Clears the input value of the form after each try
+}
+);
+
+const letterValidation = function(){                                                // this function checks that the user input was a valid entery.
+    console.log(`word inside of letterValidation ${word}`);
+    const acceptedLetter = /[a-zA-Z]+$/;                                            // Regex to check stuff aginst. 
+    const inputLetter = form.elements;                                              // gets the information from the form
+    let letterIn = inputLetter['letter'].value;                                     // gets the information from the form
+    
+    if(letterIn === "" || letterIn === " "){
+    messageParagraph.innerText = "Ops! You forgot to input a letter.";
+    letterIn = null;
+    } else if (letterIn.length > 1){                                                // tests to no multiple characters 
+    messageParagraph.innerText = "One at a time please.";
+    letterIn = null;
+    } else {
+        if(!letterIn.match(acceptedLetter) || typeof validGusse === 'string')
+        {
+        messageParagraph.innerText = "Ops! that's not a letter.";
+        letterIn = null;
+        }
+        else {
+        return String(letterIn);
+        }
+    }
+        return letterIn;
+};
+
+const makeGuess = function(ltrs, word){                                      //funtion to test if the letter is part of the word
+    console.log(`word inside of makeGuess ${word}`);
+    let ltr = String(ltrs).toUpperCase();
+    let wordAsCaps = String(word).toUpperCase();
+    AnsewerArray = wordAsCaps.split("");                                    // ansewer word as an array
+    guessedLetters.push(ltr);
     let timesGuessed = getOccurrence(guessedLetters, ltr);
+    let itsRight = 0;
 
-        if (AnsewerArray.includes(ltr) === true){                     // tests if letter is in the ansewer
-            messageParagraph.innerText = "You got one!";      // second wrong ansewer
-         
-        } else if (timesGuessed == 0){           //tests if the letter has already been guessed 
-    guessedLetters.push(ltr)  
-            messageParagraph.innerText = "Keep Tyring";    
-        } else if (!ltr){                                   //tests if the letter is not undefned/null      
-                                                            // if value is missing "Pass"
-        } else if (timesGuessed >= 1)  {                // add a new wrong letter to the wrong letter array
-            messageParagraph.innerText = "You already guessed that one";      // second wrong ansewer   
+    if (AnsewerArray.includes(ltr) == true){                           // tests if letter is in the ansewer
+        messageParagraph.innerText = "You got one!";                  
+        itsRight = ltr;
+        guessedLetters.pop(ltr);
+    } else {
+    if (timesGuessed === 1){                                     
+        messageParagraph.innerText = "Keep Tyring";    
+    } else if (timesGuessed > 1) {                                    
+        messageParagraph.innerText = "You already guessed that one";    
         } 
-
-        return guessedLetters;
+    }
+    let uniqueNames = getUnique(guessedLetters);
+    return [uniqueNames, itsRight]
     };
 
-    const dotToletters = function(validGusse, word, iAmdot) {
 
-        const wordAsCaps = word.toUpperCase();  
-        letterLocation = wordAsCaps.split('');
- 
-        if (letterLocation.includes(validGusse === true)){ correctGuesses.push(validGusse);}
+const dotToletters = function(validGusse, word, iAmdot) {
+    console.log(`word inside of dotToletters ${word}`);
+    const wordAsCaps = word.toUpperCase();
+    const indexes = [];   
+    letterLocation = wordAsCaps.split('');
 
-        // if statment here that tests if the arravy length is 0
-        if (finalAnsewer.length === 0){
-            let n = 0;
-            while(n < word.length){
-                finalAnsewer[n] = iAmdot;
-                n += 1
-            }
+    if (letterLocation.includes(validGusse)){                      // if statment here that tests if the arravy length is 0
+    }  
+    if (finalAnsewer.length === 0){
+        let n = 0;
+        while(n < word.length){
+            finalAnsewer[n] = iAmdot;
+            n += 1
         }
-               
-        const indexes = []; 
- 
-        for (let index = 0; index < letterLocation.length; index++) {
-          if (letterLocation[index] === validGusse) {
-            indexes.push(index);
-          }
-        }
-
-        for (let i of indexes){
-            finalAnsewer[i] = validGusse;
-        }
-
-        return finalAnsewer
     }
 
+    for (let index = 0; index < letterLocation.length; index++) {
+        if (letterLocation[index] === validGusse) {
+        indexes.push(index);
+        }
+    }
 
+    for (let i of indexes){
+        finalAnsewer[i] = validGusse;
+    }
+
+    correctGuesses = [];
+    return finalAnsewer.join('');
+}
    
- function chickenDiner(wintest, word) {
+const chickenDiner = function(wintest, word) {
+    console.log(`word inside of chickenDiner ${word}`);
     const wordsUpCa = word.toUpperCase();
-    let winWiner = wintest.join('');
-
-    console.log(`winWiner = ${winWiner} & wordsUpCa = ${wordsUpCa}`); 
-    if (winWiner === wordsUpCa){
+    let winnerWinner = 0;
+    if (wintest === wordsUpCa){
         messageParagraph.innerHTML = '<p class="highlight">You guessed correct the word! Congrats!</p>';
+        winnerWinner = 1;
     }
-
-
+    return winnerWinner;
 }
 
-function getOccurrence(array, value) {
+const getOccurrence = function(array, value) {
     return array.filter((v) => (v === value)).length;
+}
+
+const dimishedGuesses = function(word, wrongAnsewers){
+    console.log(`word inside of dimishedGuesses ${word}`);
+    let guessesLeft = (word.length - wrongAnsewers.length);
+    console.log(`guessesLeft ${guessesLeft}`);
+    console.log(`word  ${word}, wrongAnsewers  ${wrongAnsewers}`);
+    return guessesLeft
+}
+
+const getUnique = function(array){                                          // it wasn't in the rules BUT I felt it wouldn't be
+                                                                            // cool to hold duplicate guesses against the player
+        for(i=0; i < array.length; i++){
+        if(uniqueArray.indexOf(array[i]) === -1) {
+        uniqueArray.push(array[i]);
+        }
+    }
+    return uniqueArray;
 }
