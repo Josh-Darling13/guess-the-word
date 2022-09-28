@@ -1,9 +1,9 @@
-const alreadyGussesedLetter = document.querySelector(".guessed-letters");          //The unordered list where the player’s guessed letters will appear.
+const alreadyGussesedLetter = document.querySelector(".guessed-letters");   //The unordered list where the player’s guessed letters will appear.
 const guessButton = document.querySelector(".guess");                       //The button with the text “Guess!” in it.
-const inputLetter = document.querySelector(".letter");                     //The text input where the player will guess a letter.
+const inputLetter = document.querySelector(".letter");                      //The text input where the player will guess a letter.
 const wordInProgress = document.querySelector(".word-in-progress");         //The empty paragraph where the word in progress will appear.
-const standingGuesses = document.querySelector(".remaining");              // The paragraph where the remaining guesses will display.
-const innerSpan = document.querySelector(".remaining span");                           // The span inside the paragraph where the remaining guesses will display.
+const standingGuesses = document.querySelector(".remaining");               // The paragraph where the remaining guesses will display.
+const innerSpan = document.querySelector(".remaining span");                // The span inside the paragraph where the remaining guesses will display.
 const messageParagraph = document.querySelector(".message");                // The empty paragraph where messages will appear when the player guesses a letter.
 const playAgain = document.querySelector(".play-again");                    // The hidden button that will appear prompting the player to play again.// 
 const form = document.querySelector('form');
@@ -14,6 +14,9 @@ let dotsOnParade = [];
 let dotNum = word.length;
 let remainingGuesses = word.length;
 
+/**
+ * A fun and interactive game built with Javascript and a JSON file. Try to guess the word before your guesses run out. Win or lose, play as many times as you like
+ */
 
 const getWord = async function () {
 
@@ -96,7 +99,7 @@ guessButton.addEventListener('click', (e) =>{
             standingGuesses.classList.add("hide"); 
         }
     }
-    inputLetter.value = '';                                                                        // Clears the input value of the form after each try
+    inputLetter.value = '';                                                            // Clears the input value of the form after each try
     });
 
 const letterValidation = function(word){                                                // this function checks that the user input was a valid entery.
@@ -198,7 +201,7 @@ const dimishedGuesses = function(word, wrongAnsewers){
 }
 
 const getUnique = function(array){                                          // it wasn't in the rules BUT I felt it wouldn't be
-                                                                           // cool to hold duplicate guesses against the player
+                                                                            // cool to hold duplicate guesses against the player
     for(i=0; i < array.length; i++){
         if(uniqueArray.indexOf(array[i]) === -1) {
         uniqueArray.push(array[i]);
