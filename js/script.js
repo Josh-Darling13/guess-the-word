@@ -11,41 +11,31 @@ const form = document.querySelector('form');
 let word = "magnolia"
 const iAmdot = "●";
 let dotsOnParade = [];
-
+let dotNum = word.length;
 let remainingGuesses = word.length;
-
-/* 
-let word = "magnolia";
-
-With the rest of our global variables at the top of the file. Then inside your 'getWord' function, 
-remove the 'let' in front of 'word = wordArray[randomIndex].grim();' - because you are reassigning 
-the variable (and not redeclaring it). With that in place, your code should be able to reach out to the global space and access the 'word' global variable, no matter where it is used.
-
-*/
 
 
 const getWord = async function () {
- 
+
     let response = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
     let words = await response.text();
     let wordArray = words.split("\n");
     let randomIndex = Math.floor(Math.random() * wordArray.length);
     word = wordArray[randomIndex].trim();
-    console.log(`word ${word}`);
+
     dotChain(iAmdot, word);
   };
 
 getWord();
 
 const dotChain = function(iAmdot, word){
-    let dotNum = word.length;
+    dotNum = word.length;
     let n = 0;
     while(n < dotNum){
         dotsOnParade[n] = iAmdot;
         n += 1
     }
 
-    console.log(dotsOnParade);
 
      wordInProgress.innerText = dotsOnParade.join("");
      innerSpan.innerHTML = `${dotNum} guesses`; 
@@ -60,21 +50,20 @@ let AnsewerArray = [];
 let uniqueArray = [];
 
 
-// innerSpan.innerHTML = `${remainingGuesses} guesses`;  
-
 playAgain.addEventListener('click',function(){
+    guessButton.classList.remove("hide");
     playAgain.classList.add("hide");
+    standingGuesses.classList.remove("hide"); // HERE
     messageParagraph.innerText = "";  
     innerSpan.innerHTML = `${remainingGuesses} guesses`;  
     alreadyGussesedLetter.innerText = '';
-}
+    location.reload();
+    }
 );
 
 guessButton.addEventListener('click', (e) =>{
     e.preventDefault();
-                           
-    let validGusse = letterValidation(word);
-  
+    let validGusse = letterValidation(word);  
     if (typeof validGusse === 'string' || validGusse instanceof String) {
         let valGuess = makeGuess(validGusse, word);
         let guessedArray = valGuess[0];
@@ -93,64 +82,52 @@ guessButton.addEventListener('click', (e) =>{
                 return false;
             });
         }
-
+ 
         let guessesRemain = dimishedGuesses(word, guessedArray);
-        console.log(`guessesRemain ${guessesRemain}`);
-
-        if (guessesRemain > -1){
-        innerSpan.innerHTML = `${guessesRemain} guesses`;  
-        }
-
-        if (guessesRemain > 0){
-            innerSpan.innerHTML = `${guessesRemain} guesses`; 
-        } else if (guessesRemain === 0){
-            console.log('getting here');
-            
+        if (guessesRemain >= 1 ){
+        innerSpan.innerHTML = `${guessesRemain} guesses`; 
+        } else {        
+            guessButton.classList.add("hide"); 
             playAgain.classList.remove('hide');
             playAgain.classList.add("play-again");
             messageParagraph.innerText = "Sorry, try again?";   
-            dotChain(iAmdot, dotNum);      
+            innerSpan.innerHTML = "no guesses";  
+            dotChain(iAmdot, dotNum);    
+            standingGuesses.classList.add("hide"); 
         }
     }
     inputLetter.value = '';                                                                        // Clears the input value of the form after each try
-}
-);
+    });
 
 const letterValidation = function(word){                                                // this function checks that the user input was a valid entery.
-
-    const acceptedLetter = /[a-zA-Z]+$/;                                            // Regex to check stuff aginst. 
-    const inputLetter = form.elements;                                              // gets the information from the form
-    let letterIn = inputLetter['letter'].value;                                     // gets the information from the form
-    
+    const acceptedLetter = /[a-zA-Z]+$/;                                                // Regex to check stuff aginst. 
+    const inputLetter = form.elements;                                                  // gets the information from the form
+    let letterIn = inputLetter['letter'].value;                                         // gets the information from the form
     if(letterIn === "" || letterIn === " "){
     messageParagraph.innerText = "Ops! You forgot to input a letter.";
     letterIn = null;
-    } else if (letterIn.length > 1){                                                // tests to no multiple characters 
+    } else if (letterIn.length > 1){                                                    // tests to no multiple characters 
     messageParagraph.innerText = "One at a time please.";
     letterIn = null;
     } else {
-        if(!letterIn.match(acceptedLetter) || typeof validGusse === 'string')
-        {
+        if(!letterIn.match(acceptedLetter) || typeof validGusse === 'string'){
         messageParagraph.innerText = "Ops! that's not a letter.";
         letterIn = null;
-        }
-        else {
+        } else {
         return String(letterIn);
         }
     }
         return letterIn;
 };
 
-const makeGuess = function(ltrs, word){                                      //funtion to test if the letter is part of the word
-
+const makeGuess = function(ltrs, word){                                                 //funtion to test if the letter is part of the word
     let ltr = String(ltrs).toUpperCase();
     let wordAsCaps = String(word).toUpperCase();
-    AnsewerArray = wordAsCaps.split("");                                    // ansewer word as an array
+    AnsewerArray = wordAsCaps.split("");                                                // ansewer word as an array
     guessedLetters.push(ltr);
     let timesGuessed = getOccurrence(guessedLetters, ltr);
     let itsRight = 0;
-
-    if (AnsewerArray.includes(ltr) == true){                           // tests if letter is in the ansewer
+    if (AnsewerArray.includes(ltr) == true){                                            // tests if letter is in the ansewer
         messageParagraph.innerText = "You got one!";                  
         itsRight = ltr;
         guessedLetters.pop(ltr);
@@ -171,8 +148,7 @@ const dotToletters = function(validGusse, word, iAmdot) {
     const wordAsCaps = word.toUpperCase();
     const indexes = [];   
     letterLocation = wordAsCaps.split('');
-
-    if (letterLocation.includes(validGusse)){                      // if statment here that tests if the arravy length is 0
+    if (letterLocation.includes(validGusse)){                                           // if statment here that tests if the arravy length is 0
     }  
     if (finalAnsewer.length === 0){
         let n = 0;
@@ -196,6 +172,7 @@ const dotToletters = function(validGusse, word, iAmdot) {
     return finalAnsewer.join('');
 }
    
+
 const chickenDiner = function(wintest, word) {
 
     const wordsUpCa = word.toUpperCase();
@@ -203,6 +180,7 @@ const chickenDiner = function(wintest, word) {
     if (wintest === wordsUpCa){
         messageParagraph.innerHTML = '<p class="highlight">You guessed correct the word! Congrats!</p>';
         winnerWinner = 1;
+        guessButton.classList.add("hide");  // HERE
     }
     return winnerWinner;
 }
@@ -211,18 +189,17 @@ const getOccurrence = function(array, value) {
     return array.filter((v) => (v === value)).length;
 }
 
+
 const dimishedGuesses = function(word, wrongAnsewers){
 
     let guessesLeft = (word.length - wrongAnsewers.length);
-
-    console.log(`word  ${word}, wrongAnsewers  ${wrongAnsewers}, guessesLeft ${guessesLeft} `);
-
+ 
     return guessesLeft 
 }
 
 const getUnique = function(array){                                          // it wasn't in the rules BUT I felt it wouldn't be
-                                                                            // cool to hold duplicate guesses against the player
-        for(i=0; i < array.length; i++){
+                                                                           // cool to hold duplicate guesses against the player
+    for(i=0; i < array.length; i++){
         if(uniqueArray.indexOf(array[i]) === -1) {
         uniqueArray.push(array[i]);
         }
